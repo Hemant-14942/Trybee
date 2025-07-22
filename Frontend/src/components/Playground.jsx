@@ -1,11 +1,18 @@
-import React, { useRef, useState } from "react";
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import { Canvas, FabricImage } from "fabric";
+import { imagekit } from "../lib/imageKitInstance";
 
 const Playground = () => {
   const [view, setView] = useState("front");
   const [selectedColor, setSelectedColor] = useState("");
-  const [selectedSize, setSelectedSize] = useState("M");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [uploading, setUploading] = useState(false);
   const uploadedImageRef = useRef(null);
   const fileInputRef = useRef();
+
+  const canvasRef = useRef(null);
+  const [canvasInstance, setCanvasInstance] = useState(null);
 
   const colors = [
     "#1f2937",
@@ -20,14 +27,91 @@ const Playground = () => {
     "#f97316",
   ];
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      uploadedImageRef.current = file;
-      console.log("Uploaded file:", file);
-      // You can also generate a preview URL here if needed
+      setUploading(true);
+      try {
+        const uploadedImageRef = await imagekit.upload({
+          file: file,
+          fileName: file?.name,
+          isPublished: true,
+          useUniqueFileName: false,
+        });
+        console.log("Uploaded file:", uploadedImageRef.url);
+
+        canvasInstance.clear();
+        canvasInstance.renderAll();
+
+        const canvasImageRef = await FabricImage.fromURL(uploadedImageRef.url);
+        canvasImageRef.left = 10;
+        canvasImageRef.top = 25;
+        canvasImageRef.scaleX = 0.4;
+        canvasImageRef.scaleY = 0.3;
+
+        canvasInstance.add(canvasImageRef);
+        canvasInstance.renderAll();
+      } catch (error) {
+        console.error("Image upload failed", error);
+        alert("Upload failed. Please try again.");
+      } finally {
+        setUploading(false);
+      }
     }
   };
+
+  const addDefaultImage = async () => {
+    const canvasImageRef = await FabricImage.fromURL(
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1753196759/placeholder_1_xvtjot.png"
+    );
+    canvasInstance.add(canvasImageRef);
+    canvasImageRef.left = 10;
+    canvasImageRef.top = 25;
+    canvasImageRef.scaleX = 0.4;
+    canvasImageRef.scaleY = 0.3;
+    canvasInstance.renderAll();
+  };
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      const isMobile = window.innerWidth < 640;
+      const canvasWidth = isMobile ? 100 : 140;
+      const canvasHeight = isMobile ? 150 : 200;
+      const containerWidth = isMobile ? "100px" : "140px";
+      const containerHeight = isMobile ? "140px" : "200px";
+
+      const canvas = new Canvas(canvasRef.current, {
+        width: canvasWidth,
+        height: canvasHeight,
+        backgroundColor: "transparent",
+        selection: false,
+      });
+
+      setCanvasInstance(canvas);
+
+      const container = canvasRef.current.parentNode;
+      if (container) {
+        container.style.position = "absolute";
+        container.style.top = "100px";
+        container.style.left = "50%";
+        container.style.transform = "translateX(-50%)";
+        container.style.zIndex = 50;
+        container.style.width = containerWidth;
+        container.style.height = containerHeight;
+        container.style.backgroundColor = "transparent";
+      }
+
+      return () => {
+        canvas.dispose();
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (canvasInstance) {
+      addDefaultImage();
+    }
+  }, [canvasInstance]);
 
   return (
     <div className="min-h-screen text-white py-6 font-sans md:max-w-6xl md:mx-auto px-4 md:px-0">
@@ -54,18 +138,16 @@ const Playground = () => {
         </div>
 
         {/* Center Panel */}
-        <div className="flex flex-col flex-1 w-full">
-          <div className="bg-gray-700 rounded-xl p-4 sm:p-6 border border-gray-700 flex justify-center items-center">
-            <div className="relative">
-              <img
-                src={
-                  view === "front" ? "/tshirt_front.png" : "/tshirt_back.png"
-                }
-                alt={`T-Shirt ${view}`}
-                className="h-[260px] sm:h-[320px] w-auto object-contain"
-              />
-              <div className="absolute top-[65px] sm:top-[80px] left-1/2 transform -translate-x-1/2 w-[100px] sm:w-[130px] h-[130px] sm:h-[150px] border-2 border-dashed border-gray-500 bg-white/10" />
-            </div>
+        <div className="flex flex-col flex-1 w-full relative">
+          <div className="relative bg-gray-700 rounded-xl p-4 sm:p-6 border border-gray-700 flex justify-center items-center min-h-[320px]">
+            {/* Canvas overlay */}
+            <canvas ref={canvasRef} className="z-50" />
+            {/* T-shirt image */}
+            <img
+              src={view === "front" ? "/tshirt_front.png" : "/tshirt_back.png"}
+              alt={`T-Shirt ${view}`}
+              className="h-[260px] sm:h-[320px] w-auto object-contain"
+            />
           </div>
 
           <div className="mt-6 sm:mt-8 flex flex-col md:flex-row items-center gap-3 md:gap-4 border border-gray-700 p-4 rounded-lg">
@@ -77,10 +159,16 @@ const Playground = () => {
             <span className="text-black">-OR-</span>
             <button
               onClick={() => fileInputRef.current.click()}
-              className="w-full md:w-auto bg-blue-600 px-4 py-2 rounded text-white hover:bg-blue-700"
+              className={`w-full md:w-auto px-4 py-2 rounded text-white transition ${
+                uploading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+              disabled={uploading}
             >
-              Upload Img
+              {uploading ? "Uploading..." : "Upload Img"}
             </button>
+
             <input
               type="file"
               ref={fileInputRef}
@@ -98,10 +186,10 @@ const Playground = () => {
               BG Remove
             </button>
             <button className="border border-gray-600 px-3 py-1 rounded">
-              Shadow
+              Upscale Image
             </button>
             <button className="border border-gray-600 px-3 py-1 rounded">
-              Crop
+              Smart Crop
             </button>
           </div>
 
