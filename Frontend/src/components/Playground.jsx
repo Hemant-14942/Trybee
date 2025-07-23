@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Canvas, FabricImage } from "fabric";
 import { imagekit } from "../lib/imageKitInstance";
@@ -7,10 +6,12 @@ const Playground = () => {
   const [view, setView] = useState("front");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [imageUrl, setImageUrl] = useState(null);
+  const [prompt, setPrompt] = useState("");
   const [uploading, setUploading] = useState(false);
   const [transforming, setTransforming] = useState({});
   const [uploadedImage, setUploadedImage] = useState(
-    "https://ik.imagekit.io/mcit5snjx/model.jpg"
+    "https://ik.imagekit.io/mcit5snjx/placeholder.png"
   );
 
   const uploadedImageRef = useRef(null);
@@ -19,16 +20,8 @@ const Playground = () => {
   const [canvasInstance, setCanvasInstance] = useState(null);
 
   const colors = [
-    "#1f2937",
-    "#dc2626",
-    "#16a34a",
-    "#2563eb",
-    "#f59e0b",
-    "#d946ef",
-    "#facc15",
-    "#e2e8f0",
-    "#6b7280",
-    "#f97316",
+    "#1f2937", "#dc2626", "#16a34a", "#2563eb", "#f59e0b",
+    "#d946ef", "#facc15", "#e2e8f0", "#6b7280", "#f97316"
   ];
   const imageTransformationOptions = [
     { name: "BG Remove", imageKitTr: "e-bgremove" },
@@ -64,17 +57,13 @@ const Playground = () => {
 
   const applyImageTransformation = async (transformation, alreadyApplied) => {
     setTransforming((prev) => ({ ...prev, [transformation]: true }));
-
     const [baseUrl, query] = uploadedImage.split("?");
     let existing = query?.split("tr=")[1] || "";
-
     const transformations = existing.split(",").filter(Boolean);
 
     let newUrl = "";
     if (alreadyApplied) {
-      const updated = transformations
-        .filter((t) => t !== transformation)
-        .join(",");
+      const updated = transformations.filter((t) => t !== transformation).join(",");
       newUrl = `${baseUrl}${updated ? `?tr=${updated}` : ""}`;
     } else {
       const updated = [...transformations, transformation].join(",");
@@ -88,6 +77,47 @@ const Playground = () => {
     checkImageLoad.onload = () => {
       setTransforming((prev) => ({ ...prev, [transformation]: false }));
     };
+  };
+
+  async function query(data) {
+    const response = await fetch(
+      "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+      {
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_HF_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    const result = await response.blob();
+    return result;
+  }
+
+  const generateImage = async () => {
+    setUploading(true);
+    try {
+      const blob = await query({
+        inputs: prompt || "Astronaut riding a horse",
+      });
+
+      const file = new File([blob], "tshirt-design.png", { type: blob.type });
+
+      const uploaded = await imagekit.upload({
+        file,
+        fileName: "tshirt-design.png",
+        isPublished: true,
+        useUniqueFileName: false,
+      });
+
+      setUploadedImage(uploaded.url);
+    } catch (err) {
+      alert("Upload failed. Try again.");
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   useEffect(() => {
@@ -125,10 +155,10 @@ const Playground = () => {
       canvasInstance.clear();
       const image = await FabricImage.fromURL(uploadedImage);
       Object.assign(image, {
-        left: 10,
-        top: 25,
-        scaleX: 0.4,
-        scaleY: 0.3,
+        left: -2,
+        top: 40,
+        scaleX: 0.2,
+        scaleY: 0.2,
       });
       canvasInstance.add(image);
       canvasInstance.renderAll();
@@ -144,7 +174,6 @@ const Playground = () => {
       </h1>
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full">
-        \
         <div className="flex lg:flex-col gap-4 justify-center items-center border border-black rounded-xl px-4 py-6 lg:py-40 w-full lg:w-auto">
           {["Front", "Back"].map((label) => (
             <button
@@ -160,13 +189,14 @@ const Playground = () => {
             </button>
           ))}
         </div>
+
         <div className="flex flex-col flex-1 relative w-full">
-          <div className="relative bg-gray-700 rounded-xl p-4 sm:p-6 border border-gray-700 flex justify-center items-center min-h-[320px]">
+          <div className="relative bg-gray-700 rounded-xl p-4 sm:p-6 border-2 border-gray-900 flex justify-center items-center min-h-[320px]">
             <canvas ref={canvasRef} className="z-50" />
             <img
               src={view === "front" ? "/tshirt_front.png" : "/tshirt_back.png"}
               alt={`T-Shirt ${view}`}
-              className="h-[260px] sm:h-[320px] w-auto object-contain"
+              className="h-[260px] sm:h-[320px] w-auto object-contain pointer-events-none"
             />
           </div>
 
@@ -174,8 +204,16 @@ const Playground = () => {
             <input
               type="text"
               placeholder="Enter your design prompt..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
               className="flex-1 w-full bg-gray-100 border border-gray-600 rounded px-4 py-2 text-black placeholder-gray-500"
             />
+            <button
+              onClick={generateImage}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            >
+              Generate
+            </button>
             <span className="text-black">-OR-</span>
             <button
               onClick={() => fileInputRef.current.click()}
@@ -197,6 +235,7 @@ const Playground = () => {
             />
           </div>
         </div>
+
         <div className="space-y-6 border border-black rounded-xl px-4 py-6 w-full lg:w-[300px]">
           <div className="flex flex-wrap gap-2 justify-center w-full text-black">
             {imageTransformationOptions.map(({ name, imageKitTr }) => {
