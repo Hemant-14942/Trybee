@@ -8,9 +8,13 @@ const Playground = () => {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [transforming, setTransforming] = useState({});
+  const [uploadedImage, setUploadedImage] = useState(
+    "https://ik.imagekit.io/mcit5snjx/model.jpg"
+  );
+
   const uploadedImageRef = useRef(null);
   const fileInputRef = useRef();
-
   const canvasRef = useRef(null);
   const [canvasInstance, setCanvasInstance] = useState(null);
 
@@ -26,101 +30,121 @@ const Playground = () => {
     "#6b7280",
     "#f97316",
   ];
+  const imageTransformationOptions = [
+    { name: "BG Remove", imageKitTr: "e-bgremove" },
+    { name: "Upscale img", imageKitTr: "e-upscale" },
+    { name: "Smart Shadow", imageKitTr: "e-shadow" },
+    { name: "Retouch", imageKitTr: "e-retouch" },
+  ];
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setUploading(true);
-      try {
-        const uploadedImageRef = await imagekit.upload({
-          file: file,
-          fileName: file?.name,
-          isPublished: true,
-          useUniqueFileName: false,
-        });
-        console.log("Uploaded file:", uploadedImageRef.url);
-
-        canvasInstance.clear();
-        canvasInstance.renderAll();
-
-        const canvasImageRef = await FabricImage.fromURL(uploadedImageRef.url);
-        canvasImageRef.left = 10;
-        canvasImageRef.top = 25;
-        canvasImageRef.scaleX = 0.4;
-        canvasImageRef.scaleY = 0.3;
-
-        canvasInstance.add(canvasImageRef);
-        canvasInstance.renderAll();
-      } catch (error) {
-        console.error("Image upload failed", error);
-        alert("Upload failed. Please try again.");
-      } finally {
-        setUploading(false);
-      }
+    if (!file) return;
+    setUploading(true);
+    try {
+      const uploaded = await imagekit.upload({
+        file,
+        fileName: file.name,
+        isPublished: true,
+        useUniqueFileName: false,
+      });
+      setUploadedImage(uploaded.url);
+    } catch (err) {
+      alert("Upload failed. Try again.");
+      console.error(err);
+    } finally {
+      setUploading(false);
     }
   };
 
-  const addDefaultImage = async () => {
-    const canvasImageRef = await FabricImage.fromURL(
-      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1753196759/placeholder_1_xvtjot.png"
-    );
-    canvasInstance.add(canvasImageRef);
-    canvasImageRef.left = 10;
-    canvasImageRef.top = 25;
-    canvasImageRef.scaleX = 0.4;
-    canvasImageRef.scaleY = 0.3;
-    canvasInstance.renderAll();
+  const isTransformationApplied = (tr) => {
+    const [, query] = uploadedImage.split("?");
+    return query?.includes(tr) ?? false;
+  };
+
+  const applyImageTransformation = async (transformation, alreadyApplied) => {
+    setTransforming((prev) => ({ ...prev, [transformation]: true }));
+
+    const [baseUrl, query] = uploadedImage.split("?");
+    let existing = query?.split("tr=")[1] || "";
+
+    const transformations = existing.split(",").filter(Boolean);
+
+    let newUrl = "";
+    if (alreadyApplied) {
+      const updated = transformations
+        .filter((t) => t !== transformation)
+        .join(",");
+      newUrl = `${baseUrl}${updated ? `?tr=${updated}` : ""}`;
+    } else {
+      const updated = [...transformations, transformation].join(",");
+      newUrl = `${baseUrl}?tr=${updated}`;
+    }
+
+    setUploadedImage(newUrl);
+
+    const checkImageLoad = new Image();
+    checkImageLoad.src = newUrl;
+    checkImageLoad.onload = () => {
+      setTransforming((prev) => ({ ...prev, [transformation]: false }));
+    };
   };
 
   useEffect(() => {
-    if (canvasRef.current) {
-      const isMobile = window.innerWidth < 640;
-      const canvasWidth = isMobile ? 100 : 140;
-      const canvasHeight = isMobile ? 150 : 200;
-      const containerWidth = isMobile ? "100px" : "140px";
-      const containerHeight = isMobile ? "140px" : "200px";
+    if (!canvasRef.current) return;
+    const isMobile = window.innerWidth < 640;
+    const canvas = new Canvas(canvasRef.current, {
+      width: isMobile ? 100 : 140,
+      height: isMobile ? 150 : 200,
+      backgroundColor: "transparent",
+      selection: false,
+    });
 
-      const canvas = new Canvas(canvasRef.current, {
-        width: canvasWidth,
-        height: canvasHeight,
+    setCanvasInstance(canvas);
+
+    const container = canvasRef.current.parentNode;
+    if (container) {
+      Object.assign(container.style, {
+        position: "absolute",
+        top: "100px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 50,
+        width: isMobile ? "100px" : "140px",
+        height: isMobile ? "140px" : "200px",
         backgroundColor: "transparent",
-        selection: false,
       });
-
-      setCanvasInstance(canvas);
-
-      const container = canvasRef.current.parentNode;
-      if (container) {
-        container.style.position = "absolute";
-        container.style.top = "100px";
-        container.style.left = "50%";
-        container.style.transform = "translateX(-50%)";
-        container.style.zIndex = 50;
-        container.style.width = containerWidth;
-        container.style.height = containerHeight;
-        container.style.backgroundColor = "transparent";
-      }
-
-      return () => {
-        canvas.dispose();
-      };
     }
+
+    return () => canvas.dispose();
   }, []);
 
   useEffect(() => {
-    if (canvasInstance) {
-      addDefaultImage();
-    }
-  }, [canvasInstance]);
+    const loadImageToCanvas = async () => {
+      if (!canvasInstance || !uploadedImage) return;
+      canvasInstance.clear();
+      const image = await FabricImage.fromURL(uploadedImage);
+      Object.assign(image, {
+        left: 10,
+        top: 25,
+        scaleX: 0.4,
+        scaleY: 0.3,
+      });
+      canvasInstance.add(image);
+      canvasInstance.renderAll();
+    };
+
+    loadImageToCanvas();
+  }, [canvasInstance, uploadedImage]);
 
   return (
-    <div className="min-h-screen text-white py-6 font-sans md:max-w-6xl md:mx-auto px-4 md:px-0">
-      <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-semibold mb-8 text-black">
+    <div className="min-h-screen py-6 text-white font-sans md:max-w-6xl mx-auto px-4 md:px-0">
+      <h1 className="text-center text-2xl md:text-3xl font-bold mb-8 text-black">
         Customize T-Shirt Design with AI
       </h1>
 
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch w-full">
-        {/* Left Panel */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full">
+        \
         <div className="flex lg:flex-col gap-4 justify-center items-center border border-black rounded-xl px-4 py-6 lg:py-40 w-full lg:w-auto">
           {["Front", "Back"].map((label) => (
             <button
@@ -136,13 +160,9 @@ const Playground = () => {
             </button>
           ))}
         </div>
-
-        {/* Center Panel */}
-        <div className="flex flex-col flex-1 w-full relative">
+        <div className="flex flex-col flex-1 relative w-full">
           <div className="relative bg-gray-700 rounded-xl p-4 sm:p-6 border border-gray-700 flex justify-center items-center min-h-[320px]">
-            {/* Canvas overlay */}
             <canvas ref={canvasRef} className="z-50" />
-            {/* T-shirt image */}
             <img
               src={view === "front" ? "/tshirt_front.png" : "/tshirt_back.png"}
               alt={`T-Shirt ${view}`}
@@ -168,7 +188,6 @@ const Playground = () => {
             >
               {uploading ? "Uploading..." : "Upload Img"}
             </button>
-
             <input
               type="file"
               ref={fileInputRef}
@@ -178,19 +197,35 @@ const Playground = () => {
             />
           </div>
         </div>
+        <div className="space-y-6 border border-black rounded-xl px-4 py-6 w-full lg:w-[300px]">
+          <div className="flex flex-wrap gap-2 justify-center w-full text-black">
+            {imageTransformationOptions.map(({ name, imageKitTr }) => {
+              const isApplied = isTransformationApplied(imageKitTr);
+              const isLoading = transforming[imageKitTr];
 
-        {/* Right Panel */}
-        <div className="space-y-6 border border-black rounded-xl px-4 py-6 w-full lg:w-[280px]">
-          <div className="flex gap-2 justify-between text-black">
-            <button className="border border-gray-600 px-3 py-1 rounded">
-              BG Remove
-            </button>
-            <button className="border border-gray-600 px-3 py-1 rounded">
-              Upscale Image
-            </button>
-            <button className="border border-gray-600 px-3 py-1 rounded">
-              Smart Crop
-            </button>
+              return (
+                <button
+                  key={name}
+                  className={`px-3 py-1 rounded border flex items-center gap-2 ${
+                    isApplied
+                      ? "bg-blue-500 text-white"
+                      : "border-gray-600 text-black"
+                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  onClick={() => {
+                    if (!isLoading) {
+                      applyImageTransformation(imageKitTr, isApplied);
+                    }
+                  }}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="animate-spin w-4 h-4 border-t-2 border-white rounded-full" />
+                  ) : (
+                    name
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           <div className="grid grid-cols-5 gap-3">
@@ -229,11 +264,9 @@ const Playground = () => {
             ))}
           </div>
 
-          <div>
-            <button className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition duration-300 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg w-full mt-3 md:mt-5 lg:mt-10">
-              Add to Checkout
-            </button>
-          </div>
+          <button className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition duration-300 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg w-full mt-3 md:mt-5">
+            Add to Checkout
+          </button>
         </div>
       </div>
     </div>
