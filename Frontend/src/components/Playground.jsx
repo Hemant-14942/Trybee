@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Canvas, FabricImage } from "fabric";
+import { v4 as uuidv4 } from "uuid";
 import { imagekit } from "../lib/imageKitInstance";
 
 const Playground = () => {
   const [view, setView] = useState("front");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColor, setSelectedColor] = useState("ffffff");
   const [selectedSize, setSelectedSize] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [prompt, setPrompt] = useState("");
@@ -20,8 +21,16 @@ const Playground = () => {
   const [canvasInstance, setCanvasInstance] = useState(null);
 
   const colors = [
-    "#1f2937", "#dc2626", "#16a34a", "#2563eb", "#f59e0b",
-    "#d946ef", "#facc15", "#e2e8f0", "#6b7280", "#f97316"
+    "ffffff",
+    "000000",
+    "dc2626",
+    "16a34a",
+    "2563eb",
+    "f59e0b",
+    "d946ef",
+    "facc15",
+    "6b7280",
+    "f97316",
   ];
   const imageTransformationOptions = [
     { name: "BG Remove", imageKitTr: "e-bgremove" },
@@ -63,7 +72,9 @@ const Playground = () => {
 
     let newUrl = "";
     if (alreadyApplied) {
-      const updated = transformations.filter((t) => t !== transformation).join(",");
+      const updated = transformations
+        .filter((t) => t !== transformation)
+        .join(",");
       newUrl = `${baseUrl}${updated ? `?tr=${updated}` : ""}`;
     } else {
       const updated = [...transformations, transformation].join(",");
@@ -106,9 +117,9 @@ const Playground = () => {
 
       const uploaded = await imagekit.upload({
         file,
-        fileName: "tshirt-design.png",
+        fileName: `tshirt-design-${uuidv4()}.png`,
         isPublished: true,
-        useUniqueFileName: false,
+        useUniqueFileName: true,
       });
 
       setUploadedImage(uploaded.url);
@@ -194,7 +205,11 @@ const Playground = () => {
           <div className="relative bg-gray-700 rounded-xl p-4 sm:p-6 border-2 border-gray-900 flex justify-center items-center min-h-[320px]">
             <canvas ref={canvasRef} className="z-50" />
             <img
-              src={view === "front" ? "/tshirt_front.png" : "/tshirt_back.png"}
+              src={
+                view === "front"
+                  ? `/customize/tshirt_front_${selectedColor}.png`
+                  : `/customize/tshirt_back_${selectedColor}.png`
+              }
               alt={`T-Shirt ${view}`}
               className="h-[260px] sm:h-[320px] w-auto object-contain pointer-events-none"
             />
@@ -210,11 +225,11 @@ const Playground = () => {
             />
             <button
               onClick={generateImage}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+              className="w-full md:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
             >
               Generate
             </button>
-            <span className="text-black">-OR-</span>
+            <span className="text-black">OR</span>
             <button
               onClick={() => fileInputRef.current.click()}
               className={`w-full md:w-auto px-4 py-2 rounded text-white transition ${
@@ -274,7 +289,7 @@ const Playground = () => {
                 className={`w-12 h-12 rounded-full border-2 ${
                   selectedColor === c ? "border-blue-400" : "border-gray-600"
                 }`}
-                style={{ backgroundColor: c }}
+                style={{ backgroundColor: `#${c}` }}
                 onClick={() => setSelectedColor(c)}
               />
             ))}
