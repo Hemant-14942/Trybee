@@ -16,17 +16,21 @@ const Navbar = () => {
               Home
             </li>
           </Link>
-          <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
-            Collection
-          </li>
+          <Link to={"/collections"}>
+            <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
+              Collection
+            </li>
+          </Link>
           <Link to={"/customize"}>
             <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
               Customize
             </li>
           </Link>
-          <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
-            About
-          </li>
+          <Link to={"/about"}>
+            <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
+              About
+            </li>
+          </Link>
           <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
             Contact
           </li>
