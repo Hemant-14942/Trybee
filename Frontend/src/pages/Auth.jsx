@@ -21,7 +21,7 @@ const Auth = ({isAuthVisible,setIsAuthVisible }) => {
   }
   
   return (
-    <div className="fixed inset-0 bg-black/70 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 px-6 md:px-0">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md relative overflow-hidden">
         <button 
           onClick={hideAuth}
@@ -67,7 +67,7 @@ const LoginForm = ({ setActiveTab }) => {
     <form onSubmit={handleSubmit}>
       <div className="text-center mb-6">
         <h1 className="text-2xl font-medium text-gray-800">Login</h1>
-        <p className="text-gray-500 mt-2">Welcome back! Please sign in to continue</p>
+        <p className="text-gray-500 mt-2">Please sign in to continue</p>
       </div>
       
       <div className="space-y-4">

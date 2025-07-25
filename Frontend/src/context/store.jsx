@@ -17,12 +17,12 @@ export const TrybeProvider = ({ children })=>{
   }
 
 
-//   useEffect(()=>{
-//     const tokenData = localStorage.getItem('token');
-//     if(tokenData){
-//       setToken(tokenData);
-//     }
-//   },[])
+  useEffect(()=>{
+    const tokenData = localStorage.getItem('token');
+    if(tokenData){
+      setToken(tokenData);
+    }
+  },[])
 
   const value = {
     isAuthVisible,

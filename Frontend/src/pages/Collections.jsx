@@ -1,35 +1,34 @@
 "use client";
 import React, { useState } from "react";
 import ProductCard from "../components/ProductCard";
+import { collectionHeader } from "../../public/data";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const categories = ["Oversized Tees", "Cargos", "T-Shirts", "Shirts", "Hoodies"];
-const fabrics = ["All", "Cotton", "Linen", "Polyester", "Wool"];
-const prices = ["Default", "Low to High", "High to Low"];
+const fabrics = ["Fabric", "Cotton", "Linen", "Polyester", "Wool"];
+const prices = ["Sort By Price", "Low to High", "High to Low"];
 
-// Dummy data
 const dummyProducts = Array.from({ length: 100 }, (_, i) => ({
   id: i + 1,
   title: `Black Street Tee #${i + 1}`,
   price: Math.floor(Math.random() * 1000) + 499,
   fabric: fabrics[Math.floor(Math.random() * fabrics.length)],
-  category: categories[i % categories.length],
-  image:"/model.png"
+  category: collectionHeader[i % collectionHeader.length],
+  image: "/model.png",
 }));
 
 export default function Collections() {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedFabric, setSelectedFabric] = useState("All");
+  const [selectedFabric, setSelectedFabric] = useState("Fabric");
   const [sortBy, setSortBy] = useState("Default");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  // Filtering
   const filteredProducts = dummyProducts
     .filter((p) =>
       selectedCategory === "All" ? true : p.category === selectedCategory
     )
     .filter((p) =>
-      selectedFabric === "All" ? true : p.fabric === selectedFabric
+      selectedFabric === "Fabric" ? true : p.fabric === selectedFabric
     )
     .sort((a, b) => {
       if (sortBy === "Low to High") return a.price - b.price;
@@ -44,36 +43,37 @@ export default function Collections() {
   );
 
   return (
-    <div className="p-4 md:p-8 text-black min-h-screen">
+    <div className="p-4 md:py-8 md:px-0 text-black min-h-screen md:max-w-6xl md:mx-auto">
       {/* Category Buttons */}
-      <div className="flex flex-wrap justify-center gap-4 mb-6">
-        {["All", ...categories].map((cat) => (
-          <button
-            key={cat}
+      <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
+        {collectionHeader.map((cat, index) => (
+          <div
+            key={index}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-md border border-blue-400 text-blue-400 hover:bg-blue-500 hover:text-white transition ${
-              selectedCategory === cat ? "bg-blue-500 text-white" : ""
+            className={`cursor-pointer flex flex-col justify-center items-center border rounded-xl px-4 py-2 transition hover:shadow-md ${
+              selectedCategory === cat ? "bg-gray-200 scale-105" : ""
             }`}
           >
-            {cat}
-          </button>
+            <img
+              className="h-16 w-16 md:h-20 md:w-20 object-contain"
+              src={cat.logo}
+              alt={cat.name}
+            />
+            <p className="text-sm font-medium mt-2">{cat.name}</p>
+          </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap justify-center gap-6 mb-8">
+      <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
         {/* Price Sorting */}
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="bg-transparent border border-blue-400 text-blue-400 px-4 py-2 rounded-md"
+          className="bg-white border border-black text-black px-4 py-3 rounded-md w-full md:w-1/2"
         >
           {prices.map((price) => (
-            <option
-              key={price}
-              value={price}
-              className="text-black"
-            >
+            <option key={price} value={price}>
               {price}
             </option>
           ))}
@@ -83,14 +83,10 @@ export default function Collections() {
         <select
           value={selectedFabric}
           onChange={(e) => setSelectedFabric(e.target.value)}
-          className="bg-transparent border border-blue-400 text-blue-400 px-4 py-2 rounded-md"
+          className="bg-white border border-black text-black px-4 py-3 rounded-md w-full md:w-1/2"
         >
           {fabrics.map((fabric) => (
-            <option
-              key={fabric}
-              value={fabric}
-              className="text-black"
-            >
+            <option key={fabric} value={fabric}>
               {fabric}
             </option>
           ))}
@@ -110,21 +106,21 @@ export default function Collections() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-6 mt-12">
+      <div className="flex justify-end items-center gap-6 mt-12">
         <button
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
           disabled={currentPage === 1}
-          className="px-4 py-2 border border-blue-400 rounded-md text-blue-400 hover:bg-blue-500 hover:text-white transition disabled:opacity-30"
+          className="p-2 border border-black rounded-full text-black hover:bg-black hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Left Arrow
+          <ArrowLeft size={20} />
         </button>
-        <span className="text-xl">{currentPage}</span>
+        <span className="text-xl font-semibold">{currentPage}</span>
         <button
           onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 border border-blue-400 rounded-md text-blue-400 hover:bg-blue-500 hover:text-white transition disabled:opacity-30"
+          className="p-2 border border-black rounded-full text-black hover:bg-black hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Right Arrow
+          <ArrowRight size={20} />
         </button>
       </div>
     </div>
