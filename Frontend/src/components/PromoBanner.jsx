@@ -1,5 +1,4 @@
 import React from "react";
-import { div } from "three/tsl";
 
 const PromoBanner = () => {
   return (
