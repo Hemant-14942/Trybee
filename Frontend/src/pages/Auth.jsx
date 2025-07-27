@@ -21,7 +21,7 @@ const Auth = ({isAuthVisible,setIsAuthVisible }) => {
   }
   
   return (
-    <div className="fixed inset-0 bg-black/70 bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 px-6 md:px-0">
+    <div className="fixed inset-0 bg-black/70 bg-opacity-80 backdrop-blur-sm flex items-center justify-center px-6 md:px-0 z-100">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md relative overflow-hidden">
         <button 
           onClick={hideAuth}
