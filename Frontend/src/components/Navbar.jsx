@@ -41,9 +41,11 @@ const Navbar = () => {
               About
             </li>
           </Link>
-          <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
-            Contact
-          </li>
+          <Link to={"/contact"}>
+            <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
+              Contact
+            </li>
+          </Link>
         </ul>
 
         <div className="flex items-center">

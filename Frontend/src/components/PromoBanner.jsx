@@ -3,7 +3,7 @@ import React from "react";
 const PromoBanner = () => {
   return (
     <div className="flex justify-center items-center w-full px-4 md:px-0 py-10 md:pt-60 md:pb-20">
-      <div className="bg-[#f7f5f0] text-black py-10 px-6 md:px-20 border-2 border-black max-w-6xl mx-auto relative ">
+      <div className="bg-[#f7f5f0] text-black py-10 px-6 md:px-20 border-2 border-gray-300 rounded-xl max-w-6xl mx-auto relative ">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
           <div className="md:w-1/2 space-y-6 ">
             <h2 className="text-5xl font-bold leading-tight text-center md:text-start">

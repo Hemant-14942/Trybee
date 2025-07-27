@@ -8,6 +8,7 @@ import { useContext } from "react";
 import Auth from "./pages/Auth";
 import Collections from "./pages/Collections";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 const App = () => {
   const { isAuthVisible, setIsAuthVisible } = useContext(TrybeContext);
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/collections" element={<Collections />} />
         <Route path="/customize" element={<Customize />} />
         <Route path="/about" element={<About />} />
+         <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer />
     </div>

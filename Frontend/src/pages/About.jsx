@@ -4,11 +4,11 @@ import PromoBanner from "../components/PromoBanner";
 
 const About = () => {
   return (
-    <>
+    <div>
       <PromoBanner />
       <BrandStory/>
       <FAQs />
-    </>
+    </div>
   );
 };
 
