@@ -50,12 +50,12 @@ export default function Collections() {
           <div
             key={index}
             onClick={() => setSelectedCategory(cat)}
-            className={`cursor-pointer flex flex-col justify-center items-center border rounded-xl px-4 py-2 transition hover:shadow-md ${
+            className={`cursor-pointer flex flex-col justify-center items-center border rounded-xl px-6 py-2 transition hover:shadow-md ${
               selectedCategory === cat ? "bg-gray-200 scale-105" : ""
             }`}
           >
             <img
-              className="h-16 w-16 md:h-20 md:w-20 object-contain"
+              className="h-16 w-16 md:h-20 md:w-20 object-cover"
               src={cat.logo}
               alt={cat.name}
             />
