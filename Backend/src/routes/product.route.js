@@ -11,31 +11,9 @@ import adminAuth from "../middleware/adminAuth.js";
 
 const productRouter = express.Router();
 
-productRouter.post(
-  "/add-product",
-  adminAuth,
-  upload.fields([
-    { name: "image1", maxCount: 1 },
-    { name: "image2", maxCount: 1 },
-    { name: "image3", maxCount: 1 },
-    { name: "image4", maxCount: 1 },
-    { name: "image5", maxCount: 1 },
-  ]),
-  addProduct
-);
+productRouter.post("/add-product",adminAuth,upload.single("image"), addProduct);
 productRouter.get("/list-product", listProducts);
-productRouter.post(
-  "/edit-product/:productId",
-  adminAuth,
-  upload.fields([
-    { name: "image1", maxCount: 1 },
-    { name: "image2", maxCount: 1 },
-    { name: "image3", maxCount: 1 },
-    { name: "image4", maxCount: 1 },
-    { name: "image5", maxCount: 1 },
-  ]),
-  editProduct
-);
+productRouter.post("/edit-product/:productId",adminAuth,upload.single("image"),editProduct);
 productRouter.delete("/remove/:productId", adminAuth, removeProduct);
 productRouter.get("/products/:productId", singleProduct);
 
