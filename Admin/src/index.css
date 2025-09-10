@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type="range"].range-slider {
+  --tw-range-thumb-color: #111827;
+  --tw-range-track-color: #11182766; 
+}
+
+input[type="range"].range-slider {
+  appearance: none;
+}
+
+input[type="range"].range-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  background: var(--tw-range-track-color);
+  border-radius: 8px;
+}
+
+input[type="range"].range-slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  background: var(--tw-range-thumb-color);
+  border-radius: 50%;
+  cursor: pointer;
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}
+
+
+input[type="range"].range-slider::-moz-range-track {
+  height: 8px;
+  background: var(--tw-range-track-color);
+  border-radius: 8px;
+}
+
+input[type="range"].range-slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  background: var(--tw-range-thumb-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"].range-slider::-ms-track {
+  height: 8px;
+  background: var(--tw-range-track-color);
+  border-radius: 8px;
+  border: none;
+}
+
+input[type="range"].range-slider::-ms-thumb {
+  height: 16px;
+  width: 16px;
+  background: var(--tw-range-thumb-color);
+  border-radius: 50%;
+  cursor: pointer;
+}

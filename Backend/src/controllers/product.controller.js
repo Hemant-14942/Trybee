@@ -5,15 +5,14 @@ const addProduct = async (req, res) => {
   try {
     const { name, description, price, category, sizes } = req.body;
 
-    const image = req.file;
-    if (!image) {
+    if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "Image is required to add a product.",
+        message: "Product image is required.",
       });
     }
 
-    const result = await cloudinary.uploader.upload(image.path, {
+    const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "image",
     });
 
@@ -23,7 +22,7 @@ const addProduct = async (req, res) => {
       price: Number(price),
       category,
       sizes: JSON.parse(sizes || "[]"),
-      images: result.secure_url,
+      image: result.secure_url, 
     };
 
     const newProduct = new productModel(productData);
@@ -70,7 +69,7 @@ const editProduct = async (req, res) => {
       price: Number(price),
       category,
       sizes: sizes ? JSON.parse(sizes) : product.sizes,
-      images: imageUrl,
+      image: imageUrl,
     };
 
     const updatedProduct = await productModel.findByIdAndUpdate(
