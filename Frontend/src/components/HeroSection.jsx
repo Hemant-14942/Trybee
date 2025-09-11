@@ -48,12 +48,12 @@ const HeroSection = () => {
         transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
       >
         <div className="text-1xl sm:text-3xl lg:text-4xl font-semibold border-r-2   border-slate-400 flex flex-col justify-center items-center min-w-[50px] sm:min-w-[100px]">
-          40+
+          20+
           <span className="text-xs sm:text-sm block font-normal">Items</span>
         </div>
         <div className="text-1xl sm:text-3xl lg:text-4xl font-semibold border-r-2   border-slate-400 flex flex-col justify-center items-center min-w-[50px] sm:min-w-[100px]">
           5+
-          <span className="text-xs sm:text-sm block font-normal">Brands</span>
+          <span className="text-xs sm:text-sm block font-normal">Categories</span>
         </div>
         <div className="text-1xl sm:text-3xl lg:text-4xl font-semibold flex flex-col justify-center items-center min-w-[50px] sm:min-w-[100px]">
           4.8

@@ -13,10 +13,10 @@ const Home = () => {
       <HeroSection />
       <ScrollBanner />
       <ProductList title={"Popular Products ⚡️"} />
-      <Collection />
       <StoryCTA />
-      <ProductList title={"Latest Drops 🔥"} />
+      <Collection />
       <Category />
+      <ProductList title={"Latest Drops 🔥"} />
       <Banner />
     </div>
   );
