@@ -10,7 +10,7 @@ export const TrybeProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [products, setProducts] = useState([]);
   const [user, setUser] = useState(null);
-  const backendUrl = "http://localhost:8000";
+  const backendUrl = "https://trybe-w8j9.onrender.com";
 
   const getProducts = async () => {
     try {
