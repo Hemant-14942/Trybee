@@ -6,7 +6,7 @@ const Dashboard = ({ token }) => {
 
   const getData = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/product/list-product`, {
+      const response = await axios.get('http://localhost:8000/api/product/list-product', {
         headers: { token },
       });
       console.log(response.data.products);
