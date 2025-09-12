@@ -17,7 +17,7 @@ const ProductList = ({ token }) => {
   const getData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8000/api/product/list-product"
+        `${import.meta.env.VITE_BACKEND_URL}/api/product/list-product`
       );
       setProducts(response.data.products);
     } catch (error) {
@@ -55,7 +55,7 @@ const ProductList = ({ token }) => {
       }
 
       const response = await axios.post(
-        `http://localhost:8000/api/product/edit-product/${editProduct._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/product/edit-product/${editProduct._id}`,
         formData,
         {
           headers: {
@@ -82,7 +82,7 @@ const ProductList = ({ token }) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const response = await axios.delete(
-          `http://localhost:8000/api/product/remove/${id}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/product/remove/${id}`,
           {
             headers: { token },
           }
