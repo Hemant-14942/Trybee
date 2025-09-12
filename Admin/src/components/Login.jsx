@@ -13,7 +13,7 @@ const Login = () => {
     const formSubmit =async(e)=>{
         try {
             e.preventDefault();
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/user/admin`,{email,password})
+             const response = await axios.post('http://localhost:8000/api/user/admin',{email,password})
             console.log(response.data);
             localStorage.setItem('token',response.data.token);
             navigate('/Dashboard')
