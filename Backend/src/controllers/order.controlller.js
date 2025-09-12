@@ -1,9 +1,18 @@
+import orderModel from "../models/order.model.js";
+import userModel from "../models/user.model.js";
+
 const placeOrder = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body;
-    if (!userId || !items || !amount || !address) {
+    const { userId, items, amount, address, paymentMethod } = req.body;
+
+    if (!userId || !items || !amount || !address || !paymentMethod) {
       return res.status(400).json({ message: "All fields are required" });
     }
+
+    if (!["COD", "ONLINE"].includes(paymentMethod)) {
+      return res.status(400).json({ message: "Invalid payment method" });
+    }
+
     const orderData = {
       userId,
       items,
@@ -12,10 +21,11 @@ const placeOrder = async (req, res) => {
       paymentMethod,
       date: Date.now(),
     };
+
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
-    await userModel.findByIdAndUpdate(userId, { cartData: {} });
+    await userModel.findByIdAndUpdate(userId, { cartData: [] });
 
     res
       .status(200)

@@ -1,17 +1,32 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TrybeContext } from "../context/store";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const { token, isAuthVisible, setIsAuthVisible } = useContext(TrybeContext);
   const navigate = useNavigate();
-  const handleShopClick = () => {
+
+  const handleAuthClick = () => {
     if (token) {
-      navigate("/collections");
+      navigate("/profile");
     } else {
       setIsAuthVisible(true);
     }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); 
+    window.location.reload(); 
+  };
+
   return (
     <nav className="w-full bg-gray-600 text-white shadow-md z-50 border-b border-gray-800">
       <div className="md:max-w-6xl md:mx-auto px-4 md:px-0 py-3 flex justify-between items-center">
@@ -46,15 +61,48 @@ const Navbar = () => {
               Contact
             </li>
           </Link>
+          <Link to={"/cart"}>
+            <li className="hover:text-gray-200 hover:underline transition cursor-pointer">
+              Cart
+            </li>
+          </Link>
         </ul>
 
         <div className="flex items-center">
-          <button
-            onClick={handleShopClick}
-            className="hidden md:inline-block bg-[#FDFBF6] text-black hover:text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-800 transition cursor-pointer"
-          >
-            Shop Now 🧢
-          </button>
+          {token ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="hidden md:flex items-center space-x-2  rounded-full">
+                  <img
+                    src="https://ionicframework.com/docs/img/demos/avatar.svg"
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={() => navigate("/orders")}>
+                  My Orders
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <button
+              onClick={handleAuthClick}
+              className="hidden md:inline-block bg-[#FDFBF6] text-black hover:text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-800 transition cursor-pointer"
+            >
+              Shop Now 🧢
+            </button>
+          )}
           <button className="text-white transition md:hidden">☰</button>
         </div>
       </div>

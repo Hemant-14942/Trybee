@@ -1,34 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { collectionHeader } from "../../public/data";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { TrybeContext } from "../context/store";
 
-const fabrics = ["Fabric", "Cotton", "Linen", "Polyester", "Wool"];
+const sizes = ["Size", "S", "M", "L", "XL", "Free Size"];
 const prices = ["Sort By Price", "Low to High", "High to Low"];
 
-const dummyProducts = Array.from({ length: 100 }, (_, i) => ({
-  id: i + 1,
-  title: `Black Street Tee #${i + 1}`,
-  price: Math.floor(Math.random() * 1000) + 499,
-  fabric: fabrics[Math.floor(Math.random() * fabrics.length)],
-  category: collectionHeader[i % collectionHeader.length],
-  image: "/model.png",
-}));
-
 export default function Collections() {
+  const { products } = useContext(TrybeContext);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedFabric, setSelectedFabric] = useState("Fabric");
+  const [selectedSize, setSelectedSize] = useState("Size");
   const [sortBy, setSortBy] = useState("Default");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  const filteredProducts = dummyProducts
+  const filteredProducts = products
     .filter((p) =>
       selectedCategory === "All" ? true : p.category === selectedCategory
     )
     .filter((p) =>
-      selectedFabric === "Fabric" ? true : p.fabric === selectedFabric
+      selectedSize === "Size" ? true : p.sizes?.includes(selectedSize)
     )
     .sort((a, b) => {
       if (sortBy === "Low to High") return a.price - b.price;
@@ -44,14 +38,19 @@ export default function Collections() {
 
   return (
     <div className="p-4 md:py-8 md:px-0 text-black min-h-screen md:max-w-6xl md:mx-auto">
-      {/* Category Buttons */}
       <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
         {collectionHeader.map((cat, index) => (
           <div
             key={index}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() =>
+              setSelectedCategory((prev) =>
+                prev === cat.name ? "All" : cat.name
+              )
+            }
             className={`cursor-pointer flex flex-col justify-center items-center border rounded-xl px-6 py-2 transition hover:shadow-md ${
-              selectedCategory === cat ? "bg-gray-200 scale-105" : ""
+              selectedCategory === cat.name
+                ? "bg-gray-200 scale-105 border-black"
+                : ""
             }`}
           >
             <img
@@ -64,9 +63,7 @@ export default function Collections() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-        {/* Price Sorting */}
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
@@ -79,29 +76,29 @@ export default function Collections() {
           ))}
         </select>
 
-        {/* Fabric Selection */}
         <select
-          value={selectedFabric}
-          onChange={(e) => setSelectedFabric(e.target.value)}
+          value={selectedSize}
+          onChange={(e) => setSelectedSize(e.target.value)}
           className="bg-white border border-black text-black px-4 py-3 rounded-md w-full md:w-1/2"
         >
-          {fabrics.map((fabric) => (
-            <option key={fabric} value={fabric}>
-              {fabric}
+          {sizes.map((size) => (
+            <option key={size} value={size}>
+              {size}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {paginatedProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            image={product.image}
-            title={product.title}
-            price={product.price}
-          />
+        {paginatedProducts.map((product, index) => (
+          <Link to={`/product/${product._id}`} key={index}>
+            <ProductCard
+              image={product.image}
+              title={product.name}
+              category={product.category}
+              price={product.price}
+            />
+          </Link>
         ))}
       </div>
 
