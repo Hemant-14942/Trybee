@@ -46,7 +46,7 @@ const ProductForm = ({ token }) => {
       if (image) formData.append("image", image);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/product/add-product`,
+        "http://localhost:8000/api/product/add-product",
         formData,
         { headers: { token } }
       );

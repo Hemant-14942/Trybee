@@ -7,7 +7,6 @@ import ProductList from './components/ProductList.jsx';
 import Header from './components/Header.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Enquiry from './components/Enquiry.jsx';
-import Orders from './components/Orders.jsx';
 
 const App = () => {
   const [token, setToken] = useState('');
@@ -33,7 +32,7 @@ const App = () => {
             <div className="mt-16 p-4 overflow-y-auto">
               <Routes>
                 <Route path="/Dashboard" element={<Dashboard token={token} />} />
-                <Route path="/Orders" element={<Orders token={token} />} />
+                <Route path="/AddProduct" element={<ProductForm token={token} />} />
                 <Route path="/ProductList" element={<ProductList token={token} />} />
                 <Route path="/Enquiry" element={<Enquiry />} />
                 <Route path="*" element={<Navigate to="/Dashboard" />} />
