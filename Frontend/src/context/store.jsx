@@ -86,7 +86,6 @@ export const TrybeProvider = ({ children }) => {
   };
 
   const getUserProfile = async () => {
-    if (!token) return;
     try {
       const url = `${backendUrl}/api/user/get-profile`;
       const response = await axios.get(url, { headers: { token } });
@@ -98,7 +97,6 @@ export const TrybeProvider = ({ children }) => {
   };
 
   const updateProfile = async (data) => {
-    if (!token) return;
 
     try {
       const url = `${backendUrl}/api/user/edit-user`;

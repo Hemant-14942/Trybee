@@ -3,30 +3,33 @@ import { TrybeContext } from "../context/store";
 import { Edit2, Save, X } from "lucide-react";
 
 const Profile = () => {
-  const { getUserProfile, updateProfile } = useContext(TrybeContext);
+  const { token,getUserProfile, updateProfile } = useContext(TrybeContext);
   const [userData, setUserData] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getUserProfile();
-      if (data) {
-        setUserData(data);
-        setFormData({
-          ...data,
-          phoneNumber: data.phone || "",
-          address: {
-            street: data.address?.street || "",
-            city: data.address?.city || "",
-            state: data.address?.state || "",
-            pincode: data.address?.zip || "",
-          },
-        });
-      }
-    };
-    fetchData();
-  }, []);
+useEffect(() => {
+  if (!token) return; 
+
+  const fetchData = async () => {
+    const data = await getUserProfile();
+    if (data) {
+      setUserData(data);
+      setFormData({
+        ...data,
+        phoneNumber: data.phone || "",
+        address: {
+          street: data.address?.street || "",
+          city: data.address?.city || "",
+          state: data.address?.state || "",
+          pincode: data.address?.zip || "",
+        },
+      });
+    }
+  };
+  fetchData();
+}, [token]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +48,6 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    // Prepare payload to match backend fields
     const payload = {
       ...formData,
       phone: formData.phoneNumber,
@@ -61,6 +63,10 @@ const Profile = () => {
       setEditMode(false);
     }
   };
+  if (!token) {
+  return <div className="text-center mt-10 text-gray-600 text-lg">Please log in to see your profile.</div>;
+}
+
 
   if (!userData) {
     return (
