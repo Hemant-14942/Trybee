@@ -20,12 +20,13 @@ export default function ProductList({ title }) {
         {title}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 ">
-        {uniqueCategoryProducts.slice(0,4).map((product, index) => (
+        {uniqueCategoryProducts.slice(0, 4).map((product, index) => (
           <ProductCard
             key={index}
+            id={product._id}
             image={product.image}
             title={product.name}
-                        category={product.category}
+            category={product.category}
             price={product.price}
           />
         ))}

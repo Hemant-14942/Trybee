@@ -13,11 +13,30 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Invalid payment method" });
     }
 
+    // Map items to store both normal and custom designs
+    const orderItems = items.map((item) => ({
+      productId: item.productId || null,
+      size: item.size,
+      quantity: item.quantity,
+      price: item.price,
+      // Optional fields only for custom designs
+      color: item.color || null,
+      fabric: item.fabric || null,
+      side: item.side || null,
+      designImage: item.designImage || null,
+    }));
+
     const orderData = {
       userId,
-      items,
+      items: orderItems,
       amount,
-      address,
+      address: {
+        street: address.street,
+        city: address.city,
+        state: address.state || "",
+        zip: address.zip || "",
+        country: address.country || "India",
+      },
       paymentMethod,
       date: Date.now(),
     };
@@ -25,13 +44,14 @@ const placeOrder = async (req, res) => {
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
+    // Clear user's cart after order
     await userModel.findByIdAndUpdate(userId, { cartData: [] });
 
     res
       .status(200)
       .json({ success: true, message: "Order placed successfully" });
   } catch (error) {
-    console.log(error);
+    console.log("PlaceOrder Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -46,10 +66,14 @@ const allOrders = async (req, res) => {
 const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
-    const orders = await orderModel.find({ userId });
+
+    const orders = await orderModel
+      .find({ userId })
+      .populate("items.productId");
+
     res.status(200).json({ success: true, orders });
   } catch (error) {
-    log(error);
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };

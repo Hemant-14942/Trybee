@@ -12,6 +12,8 @@ import Contact from "./pages/Contact";
 import ProductPage from "./pages/ProductPage";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 
 const App = () => {
   const { isAuthVisible, setIsAuthVisible } = useContext(TrybeContext);
@@ -29,6 +31,8 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       <Footer />
     </div>

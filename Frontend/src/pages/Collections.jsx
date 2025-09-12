@@ -93,6 +93,7 @@ export default function Collections() {
         {paginatedProducts.map((product, index) => (
           <Link to={`/product/${product._id}`} key={index}>
             <ProductCard
+            id={product._id}
               image={product.image}
               title={product.name}
               category={product.category}

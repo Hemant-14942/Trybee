@@ -54,12 +54,14 @@ const handleAddToCart = () => {
       return;
     }
 
-    addToCart(product._id, selectedSize || "default", currQty);
-    setIsAdded(true);
+    addToCart({
+      itemId: product._id,
+      size: selectedSize || "default",
+      quantity: currQty
+    });
 
-    setTimeout(() => {
-      setIsAdded(false);
-    }, 2000);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
   } catch (error) {
     console.log(error);
   }
@@ -217,6 +219,7 @@ const handleAddToCart = () => {
                 to={`/product/${prod._id}`}
               >
                 <ProductCard
+                  id={prod._id}
                   image={prod?.image}
                   title={prod?.name}
                   price={prod?.price}

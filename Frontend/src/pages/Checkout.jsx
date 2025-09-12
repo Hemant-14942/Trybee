@@ -20,11 +20,27 @@ const Checkout = () => {
 
   useEffect(() => {
     if (!cartItems || !Array.isArray(cartItems)) return;
-    const updatedCartProducts = cartItems.map((item) => ({
-      ...item.productId,
-      size: item.size,
-      quantity: item.quantity,
-    }));
+
+    const updatedCartProducts = cartItems.map((item) => {
+      if (item.productId) {
+        return { ...item.productId, size: item.size, quantity: item.quantity };
+      } else {
+        return {
+          _id: `custom-${item.size}-${item.color}-${item.side}`,
+          name: "Custom Design",
+          price: 1000,
+          image: item.designImage,
+          category: "Custom",
+          size: item.size,
+          quantity: item.quantity,
+          color: item.color,
+          fabric: item.fabric,
+          side: item.side,
+          designImage: item.designImage,
+        };
+      }
+    });
+
     setCartProducts(updatedCartProducts);
   }, [cartItems]);
 
@@ -32,13 +48,7 @@ const Checkout = () => {
     cartProducts.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handlePlaceOrder = async () => {
-    if (
-      !address.name ||
-      !address.phone ||
-      !address.street ||
-      !address.city ||
-      !address.pincode
-    ) {
+    if (!address.name || !address.phone || !address.street || !address.city || !address.pincode) {
       alert("Please fill all address fields.");
       return;
     }
@@ -52,26 +62,21 @@ const Checkout = () => {
     try {
       const res = await fetch(`${backendUrl}/api/order/place`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json", 
-          token: token,
-        },
+        headers: { "Content-Type": "application/json", token: token },
         body: JSON.stringify({
           userId: token ? JSON.parse(atob(token.split(".")[1])).id : "",
           items: cartProducts.map((p) => ({
-            productId: p._id,
+            productId: p._id.startsWith("custom-") ? null : p._id,
             size: p.size,
             quantity: p.quantity,
             price: p.price,
+            color: p.color,
+            fabric: p.fabric,
+            side: p.side,
+            designImage: p.designImage,
           })),
           amount: calculateTotalAmount(),
-          address: {
-            street: address.street,
-            city: address.city,
-            state: "",
-            zip: address.pincode,
-            country: "India", 
-          },
+          address: { street: address.street, city: address.city, state: "", zip: address.pincode, country: "India" },
           paymentMethod,
         }),
       });
@@ -96,65 +101,28 @@ const Checkout = () => {
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
         <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
           <h2 className="text-2xl font-bold">Shipping Address</h2>
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="w-full border rounded-lg px-4 py-2"
-            value={address.name}
-            onChange={(e) => setAddress({ ...address, name: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Phone"
-            className="w-full border rounded-lg px-4 py-2"
-            value={address.phone}
-            onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Street Address"
-            className="w-full border rounded-lg px-4 py-2"
-            value={address.street}
-            onChange={(e) => setAddress({ ...address, street: e.target.value })}
-          />
+          <input type="text" placeholder="Full Name" className="w-full border rounded-lg px-4 py-2"
+            value={address.name} onChange={(e) => setAddress({ ...address, name: e.target.value })} />
+          <input type="text" placeholder="Phone" className="w-full border rounded-lg px-4 py-2"
+            value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
+          <input type="text" placeholder="Street Address" className="w-full border rounded-lg px-4 py-2"
+            value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} />
           <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="City"
-              className="w-full border rounded-lg px-4 py-2"
-              value={address.city}
-              onChange={(e) => setAddress({ ...address, city: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Pincode"
-              className="w-full border rounded-lg px-4 py-2"
-              value={address.pincode}
-              onChange={(e) =>
-                setAddress({ ...address, pincode: e.target.value })
-              }
-            />
+            <input type="text" placeholder="City" className="w-full border rounded-lg px-4 py-2"
+              value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
+            <input type="text" placeholder="Pincode" className="w-full border rounded-lg px-4 py-2"
+              value={address.pincode} onChange={(e) => setAddress({ ...address, pincode: e.target.value })} />
           </div>
 
           <div className="mt-6">
             <h3 className="font-semibold mb-2">Payment Method</h3>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="COD"
-                  checked={paymentMethod === "COD"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                />
+                <input type="radio" value="COD" checked={paymentMethod === "COD"} onChange={(e) => setPaymentMethod(e.target.value)} />
                 Cash on Delivery
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="ONLINE"
-                  checked={paymentMethod === "Online"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                />
+                <input type="radio" value="ONLINE" checked={paymentMethod === "ONLINE"} onChange={(e) => setPaymentMethod(e.target.value)} />
                 Online Payment
               </label>
             </div>
@@ -165,16 +133,9 @@ const Checkout = () => {
           <h2 className="text-2xl font-bold">Order Summary</h2>
           <div className="space-y-3 text-sm text-gray-700">
             {cartProducts.map((item) => (
-              <div
-                key={`${item._id}-${item.size}`}
-                className="flex justify-between"
-              >
-                <span>
-                  {item.name} ({item.size}) x {item.quantity}
-                </span>
-                <span className="font-semibold">
-                  ₹{item.price * item.quantity}
-                </span>
+              <div key={`${item._id}-${item.size}`} className="flex justify-between">
+                <span>{item.name} ({item.size}) x {item.quantity}</span>
+                <span className="font-semibold">₹{item.price * item.quantity}</span>
               </div>
             ))}
           </div>
@@ -183,11 +144,7 @@ const Checkout = () => {
             <span>Total</span>
             <span>₹{calculateTotalAmount()}</span>
           </div>
-          <button
-            onClick={handlePlaceOrder}
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-full font-semibold hover:bg-gray-800 transition disabled:opacity-50"
-          >
+          <button onClick={handlePlaceOrder} disabled={loading} className="w-full bg-black text-white py-3 rounded-full font-semibold hover:bg-gray-800 transition disabled:opacity-50">
             {loading ? "Placing Order..." : "Place Order"}
           </button>
         </div>
