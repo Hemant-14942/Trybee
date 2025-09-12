@@ -16,7 +16,7 @@ orderRouter.post("/status", adminAuth, updateOrderStatus);
 orderRouter.post("/place", authUser, placeOrder);
 // orderRouter.post('/razorpay',authUser,placeOrderRazorpay);
 
-orderRouter.post("/my-order", authUser, userOrders);
+orderRouter.get("/my-order", authUser, userOrders);
 
 // orderRouter.post('/verify-razorpay',authUser,verifyRazorpay);
 

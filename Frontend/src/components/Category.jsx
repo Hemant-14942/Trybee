@@ -8,24 +8,39 @@ import {
 
 const categories = [
   {
-    name: "T Shirt's",
-    image1: "/model.png",
-    image2: "/model.png",
+    name: "T Shirts",
+    image1:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757491745/oloal7gy82ah9qtlenv3.jpg",
+      image2:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757491745/oloal7gy82ah9qtlenv3.jpg",
   },
   {
-    name: "Joggers",
-    image1: "/model.png",
-    image2: "/model.png",
+    name: "Shirts",
+    image1:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757492343/ya5hsyf24pwncvrhlbv7.jpg",
+       image2:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757492343/ya5hsyf24pwncvrhlbv7.jpg",
   },
   {
-    name: "SweatShirts",
-    image1: "/model.png",
-    image2: "/model.png",
+    name: "Lowers",
+    image1:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757493424/pvje28rbihasjivpitrj.jpg",
+      image2:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757493424/pvje28rbihasjivpitrj.jpg",
   },
   {
-    name: "Accessories",
-    image1: "/model.png",
-    image2: "/model.png",
+    name: "Hoodi",
+    image1:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757494028/kx2fqhusbphc1a7vkkan.jpg",
+      image2:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757494028/kx2fqhusbphc1a7vkkan.jpg",
+  },
+  {
+    name: "Caps",
+    image1:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757494730/s3wzyfskquhtqmlw0e5m.jpg",
+       image2:
+      "https://res.cloudinary.com/dkqbawsqm/image/upload/v1757494730/s3wzyfskquhtqmlw0e5m.jpg",
   },
 ];
 

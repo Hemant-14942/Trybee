@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { TrybeContext } from "../context/store";
+import { Link } from "react-router-dom";
 
 export default function Collection() {
   const { products } = useContext(TrybeContext);
@@ -20,28 +21,33 @@ export default function Collection() {
             </p>
           </div>
           {lowers[1] && (
-            <img
-              src={lowers[1].image}
-              alt={lowers[1].name}
-              className="rounded-lg w-full object-cover bg-gray-200"
-            />
+            <Link to={`/product/${lowers[1]._id}`}>
+              <img
+                src={lowers[1].image}
+                alt={lowers[1].name}
+                className="rounded-lg w-full object-cover bg-gray-200"
+              />
+            </Link>
           )}
         </div>
 
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             {tshirts.map((item) => (
-              <div key={item._id}>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-auto object-cover rounded bg-gray-200"
-                />
-                <h3 className="text-sm font-medium mt-2">{item.name}</h3>
-                <p className="text-sm font-semibold text-gray-800">
-                  ₹{item.price} <span className="text-gray-500">| {item.category}</span>
-                </p>
-              </div>
+              <Link to={`/product/${item._id}`}>
+                <div key={item._id}>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-auto object-cover rounded bg-gray-200"
+                  />
+                  <h3 className="text-sm font-medium mt-2">{item.name}</h3>
+                  <p className="text-sm font-semibold text-gray-800">
+                    ₹{item.price}{" "}
+                    <span className="text-gray-500">| {item.category}</span>
+                  </p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -52,31 +58,34 @@ export default function Collection() {
           Elegant Trendy Collection
         </h2>
 
-       
-
         <div className="grid grid-cols-2 gap-4">
           {shirts.map((item) => (
-            <div key={item._id}>
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-auto object-cover rounded bg-gray-200"
-              />
-              <h3 className="text-sm font-medium mt-2">{item.name}</h3>
-              <p className="text-sm font-semibold text-gray-800">
-                ₹{item.price} <span className="text-gray-500">| {item.category}</span>
-              </p>
-            </div>
+            <Link to={`/product/${item._id}`}>
+              <div key={item._id}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-auto object-cover rounded bg-gray-200"
+                />
+                <h3 className="text-sm font-medium mt-2">{item.name}</h3>
+                <p className="text-sm font-semibold text-gray-800">
+                  ₹{item.price}{" "}
+                  <span className="text-gray-500">| {item.category}</span>
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
 
         <div className="space-y-6">
           {lowers[0] && (
-            <img
-              src={lowers[0].image}
-              alt={lowers[0].name}
-              className="rounded-lg w-full object-cover bg-gray-200"
-            />
+            <Link to={`/product/${lowers[0]._id}`}>
+              <img
+                src={lowers[0].image}
+                alt={lowers[0].name}
+                className="rounded-lg w-full object-cover bg-gray-200"
+              />
+            </Link>
           )}
         </div>
       </div>

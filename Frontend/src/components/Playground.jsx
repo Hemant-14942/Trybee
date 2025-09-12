@@ -1,12 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { Canvas, FabricImage } from "fabric";
 import { v4 as uuidv4 } from "uuid";
 import { imagekit } from "../lib/imageKitInstance";
+import { TrybeContext } from "../context/store";
 
 const Playground = () => {
+  const { backendUrl, token } = useContext(TrybeContext);
   const [view, setView] = useState("front");
   const [selectedColor, setSelectedColor] = useState("ffffff");
   const [selectedSize, setSelectedSize] = useState("");
+  const [selectedFabric, setSelectedFabric] = useState("Cotton");
   const [imageUrl, setImageUrl] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -88,6 +92,45 @@ const Playground = () => {
     checkImageLoad.onload = () => {
       setTransforming((prev) => ({ ...prev, [transformation]: false }));
     };
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      if (!selectedSize) {
+        alert("Please select a size before adding to cart");
+        return;
+      }
+      if (!selectedColor) {
+        alert("Please select a color before adding to cart");
+        return;
+      }
+      if (!selectedFabric) {
+        alert("Please select a fabric before adding to cart");
+        return;
+      }
+
+      const payload = {
+        size: selectedSize,
+        quantity: 1,
+        color: selectedColor,
+        fabric: selectedFabric,
+        price : Number(1000),
+        side: view === "front" ? "Front" : "Back",
+        designImage: uploadedImage,
+      };
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/cart//add-to-cart`,
+        payload,
+        { headers: { token: token } }
+      );
+
+      console.log("Cart Updated:", data);
+      alert("Item added to cart!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to cart");
+    }
   };
 
   async function query(data) {
@@ -295,8 +338,11 @@ const Playground = () => {
             ))}
           </div>
 
-          <select className="w-full border border-black px-3 py-2 rounded text-sm text-black">
-            <option>Choose Fabric</option>
+          <select
+            className="w-full border border-black px-3 py-2 rounded text-sm text-black"
+            value={selectedFabric}
+            onChange={(e) => setSelectedFabric(e.target.value)}
+          >
             <option value="cotton">Cotton</option>
             <option value="polyester">Polyester</option>
             <option value="blend">Blended</option>
@@ -318,7 +364,10 @@ const Playground = () => {
             ))}
           </div>
 
-          <button className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition duration-300 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg w-full mt-3 md:mt-5">
+          <button
+            onClick={handleAddToCart}
+            className="bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition duration-300 text-sm sm:text-base font-semibold shadow-md hover:shadow-lg w-full mt-3 md:mt-5"
+          >
             Add to Checkout
           </button>
         </div>
